@@ -119,23 +119,24 @@ main:    STRO msg_inpt, d ; On d?crit ? l'utilisateur ce qu'il tape sur le clavi
                         
                  end_3: BR aff_enti ; TODO MODIFER À UNE AUTRE INSTRUCTION 
 
-         fill_ent: NOP1
-                 ldx 122, i
-                 ldbytea 2, i
-                 stbytea entier, x
-
-                 LDX 129, i ; TODO mettre en constante
+         fill_ent:LDX 129, i ; TODO mettre en constante
                  SUBX expo, d ; i_manti = TAIL_ENT - 1 - expo
+                 STX i_manti, d ; On stock l'indice dans la partie entière de la mantisse
+
+                 SUBX 1, i ; ajustement de l'indice à la case juste avant la fin du tableau
                  LDBYTEA 1, i ; Charger le 1 implicite de la mantisse dans l'accumulateur
                  STBYTEA entier, x ; On met le 1 implicite de la mantisse dans la partie entière
-                 STX i_manti, d ; On stock l'indice dans la partie entière de la mantisse
                  
                  LDX 0, i ; Initialisation du compteur à 0
                  STX cpt, d 
                  ; Remplissage de la partie entière (uniquement)
-                 for_4:      CPX expo, d
-                             charo '!', i
+                 for_4:      CPX expo, d ; if(cpt == expo || cpt == 23)
+                             BREQ end_4  ;     end_4();
+
+                             CPX 23, i
                              BREQ end_4
+
+
                              LDX i_tab, d
                              LDBYTEA tab, x ; On charge la valeur que l'on veut mettre dans la partie entière
                              ADDX 1, i    ; Incémentation et stockage de l'indice dans le tableau des valeurs entrees
@@ -150,11 +151,10 @@ main:    STRO msg_inpt, d ; On d?crit ? l'utilisateur ce qu'il tape sur le clavi
                              ADDX 1, i
                              STX cpt, d
                              BR for_4 ; rebranchement de la boucle
-                 end_4:      charo '!', i
+                 end_4:      NOP1
 
                  LDA 0, i ; reset du compteur de la mantisse à 0, on change de tableau
                  STA i_manti, d
-                 charo '!', i 
                  ; On remplit tout les autres bits dans la partie fractionère
                  for_5:      CPX 23, i
                              BRGE end_5
@@ -191,6 +191,8 @@ main:    STRO msg_inpt, d ; On d?crit ? l'utilisateur ce qu'il tape sur le clavi
                              BR for_7 ; on recommence la boucle
 
                  end_7:      CHARO '\n', i
+                             CHARO '\n', i
+
         ; DEBUG SEULEMENT RETIRER ABSOLUMENT AVANT LA REMISE AU PROF
          aff_frac:LDX 0, i
                  for_6:      CPX 151, i ; TODO METTRE EN CONSTANTE
